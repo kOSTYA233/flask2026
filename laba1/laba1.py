@@ -1,3 +1,39 @@
+import sys
+import io
+import contextlib
+from itertools import cycle
+import datetime
+from flask import Flask, jsonify, request
+
+status_lst = ["cancelled", "completed", "in_progress", "pending"]
+priority_lst = ["high", "low", "medium"]
+
+def get_task_list():
+    f = io.StringIO()
+    with contextlib.redirect_stdout(f):
+        import this
+    text = f.getvalue()
+    status_cycle = cycle(status_lst)
+    priority_cycle = cycle(priority_lst)
+    tasks_lst = []
+    num = 0
+    for line in text.splitlines():
+        if not line:
+            continue
+        num += 1
+        tasks_lst.append({
+            "id": num,
+            "title": "Zen of Python",
+            "description": line,
+            "status": next(status_cycle),
+            "priority": next(priority_cycle),
+            "created_at": datetime.datetime.now().isoformat(),
+            "updated_at": datetime.datetime.now().isoformat(),
+            "deleted_at": None,
+        })
+    return tasks_lst
+
+tasks_lst = get_task_list()
 status_lst = ["cancelled", "completed", "in_progress", "pending"]
 priority_lst = ["high", "low", "medium"]
 app = Flask(__name__)
