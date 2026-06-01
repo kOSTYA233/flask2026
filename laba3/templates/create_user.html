@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8f9fc;
+            margin: 0;
+            padding: 25px;
+        }
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #4e73df;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        h1, h2 { margin: 0 0 20px 0; }
+        label { display: block; margin: 12px 0 6px; font-weight: 600; }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d3e2;
+            border-radius: 8px;
+        }
+        .btn {
+            background: #4e73df;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th { background: #f8f9fc; }
+        .flash {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .success { background:#d4edda; color:#155724; }
+        .danger { background:#f8d7da; color:#721c24; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <div>
+                <h1>Панель администратора</h1>
+                <p>Вы вошли как: <strong>{{ current_user.username }}</strong> 
+                   {% if current_user.is_admin %}(Администратор){% endif %}</p>
+            </div>
+            <a href="{{ url_for('logout') }}" 
+               style="color:white; text-decoration:none; font-weight:500; padding:8px 16px; background:rgba(255,255,255,0.2); border-radius:6px;">
+                Выйти
+            </a>
+        </div>
+
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for cat, msg in messages %}
+                        <div class="flash {{ cat }}">{{ msg }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="grid">
+                <!-- Форма создания -->
+                <div class="card">
+                    <h2>Создать нового пользователя</h2>
+                    <form method="post">
+                        {{ form.hidden_tag() }}
+
+                        <label>{{ form.username.label }}</label>
+                        {{ form.username() }}
+                        {% if form.username.errors %}
+                            <ul style="color:red; margin-top:5px;">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                        {% endif %}
+
+                        <label>{{ form.password.label }}</label>
+                        {{ form.password() }}
+                        {% if form.password.errors %}
+                            <ul style="color:red; margin-top:5px;">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                        {% endif %}
+
+                        <label>{{ form.confirm_password.label }}</label>
+                        {{ form.confirm_password() }}
+                        {% if form.confirm_password.errors %}
+                            <ul style="color:red; margin-top:5px;">{% for e in form.confirm_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                        {% endif %}
+
+                        <label style="font-weight:normal; margin:15px 0 10px;">
+                            {{ form.is_admin() }} {{ form.is_admin.label.text }}
+                        </label>
+
+                        {{ form.submit(class_="btn") }}
+                    </form>
+                </div>
+
+                <!-- Список пользователей -->
+                <div class="card">
+                    <h2>Существующие пользователи ({{ users|length }})</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Имя пользователя</th>
+                                <th>Роль</th>
+                                <th>Дата регистрации</th>
+                                <th>Последний вход</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td><strong>{{ user.username }}</strong></td>
+                                <td>{{ "Администратор" if user.is_admin else "Пользователь" }}</td>
+                                <td>{{ user.registered_at }}</td>
+                                <td>{{ user.last_login_at or "—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
