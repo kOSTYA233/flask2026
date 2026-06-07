@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Авторизация{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Авторизация</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div>
+            {{ form.username.label }}
+            {{ form.username() }}
+            {% for error in form.username.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.password.label }}
+            {{ form.password() }}
+            {% for error in form.password.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        {{ form.submit() }}
+    </form>
+</div>
+{% endblock %}
