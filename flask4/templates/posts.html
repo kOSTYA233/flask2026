@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Список постов{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Список постов</h2>
+
+    {% if current_user %}
+        <p>Вы авторизованы и видите все записи, включая приватные.</p>
+    {% else %}
+        <p>Вы анонимный пользователь и видите только публичные записи.</p>
+    {% endif %}
+</div>
+
+{% if posts %}
+    {% for post in posts %}
+        <div class="card">
+            <h3>
+                {{ post.title }}
+                {% if post.is_private %}
+                    <span class="badge private">private</span>
+                {% else %}
+                    <span class="badge public">public</span>
+                {% endif %}
+            </h3>
+
+            <div class="meta">
+                Автор: {{ post.author.username }}<br>
+                Создан: {{ post.created_at.strftime("%d.%m.%Y %H:%M:%S") }}<br>
+                Обновлён: {{ post.updated_at.strftime("%d.%m.%Y %H:%M:%S") }}
+            </div>
+
+            <div style="white-space: pre-wrap;">{{ post.content }}</div>
+
+            {% if current_user and current_user.id == post.author_id %}
+                <div class="actions">
+                    <a class="button" href="{{ url_for('modify_article', post_id=post.id) }}">Редактировать</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <p>Постов пока нет.</p>
+    </div>
+{% endif %}
+{% endblock %}
