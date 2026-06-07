@@ -15,7 +15,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "super-secret-development-key-2026"
+app.config["SECRET_KEY"] = os.urandom(256)
 app.config["WTF_CSRF_ENABLED"] = True
 
 DATA_FILE = "users.json"
