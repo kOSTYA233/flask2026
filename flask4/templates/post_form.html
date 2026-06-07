@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{{ form_title }}</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div>
+            {{ form.title.label }}
+            {{ form.title() }}
+            {% for error in form.title.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.content.label }}
+            {{ form.content() }}
+            {% for error in form.content.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            {{ form.is_private() }} {{ form.is_private.label }}
+        </div>
+
+        {{ form.submit() }}
+    </form>
+</div>
+{% endblock %}
