@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Создание пользователя{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Создание пользователя</h2>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div>
+            {{ form.username.label }}
+            {{ form.username() }}
+            {% for error in form.username.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.password.label }}
+            {{ form.password() }}
+            {% for error in form.password.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div>
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password() }}
+            {% for error in form.confirm_password.errors %}
+                <div style="color:red;">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            {{ form.is_admin() }} {{ form.is_admin.label }}
+        </div>
+
+        {{ form.submit() }}
+    </form>
+</div>
+
+<div class="card">
+    <h3>Список пользователей</h3>
+
+    {% if users %}
+        <ul>
+            {% for user in users %}
+                <li>
+                    {{ user.username }}
+                    {% if user.is_admin %}
+                        <strong>(admin)</strong>
+                    {% else %}
+                        (user)
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Пользователей пока нет.</p>
+    {% endif %}
+</div>
+{% endblock %}
