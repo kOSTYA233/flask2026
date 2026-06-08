@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="admin-page">
+    <div class="main-container">
+        <div class="header">
+            <div class="header-info">
+                <h1>Панель администратора</h1>
+                <p>Вы вошли как: <strong>{{ current_user.username }}</strong> 
+                   {% if current_user.is_admin %}(Администратор){% endif %}</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-link">
+                Выйти
+            </a>
+        </div>
+
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for cat, msg in messages %}
+                        <div class="flash {{ cat }}">{{ msg }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="grid">
+                <div class="card">
+                    <h2>Создать нового пользователя</h2>
+                    <form method="post">
+                        {{ form.hidden_tag() }}
+
+                        <label>{{ form.username.label }}</label>
+                        {{ form.username() }}
+                        {% if form.username.errors %}
+                            <div class="validation-error">
+                                <ul>{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                            </div>
+                        {% endif %}
+
+                        <label>{{ form.password.label }}</label>
+                        {{ form.password() }}
+                        {% if form.password.errors %}
+                            <div class="validation-error">
+                                <ul>{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                            </div>
+                        {% endif %}
+
+                        <label>{{ form.confirm_password.label }}</label>
+                        {{ form.confirm_password() }}
+                        {% if form.confirm_password.errors %}
+                            <div class="validation-error">
+                                <ul>{% for e in form.confirm_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+                            </div>
+                        {% endif %}
+
+                        <label class="admin-checkbox-label">
+                            {{ form.is_admin() }} {{ form.is_admin.label.text }}
+                        </label>
+
+                        {{ form.submit(class_="btn") }}
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>Существующие пользователи ({{ users|length }})</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Имя пользователя</th>
+                                <th>Роль</th>
+                                <th>Дата регистрации</th>
+                                <th>Последний вход</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td><strong>{{ user.username }}</strong></td>
+                                <td>{{ "Администратор" if user.is_admin else "Пользователь" }}</td>
+                                <td>{{ user.registered_at }}</td>
+                                <td>{{ user.last_login_at or "—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
