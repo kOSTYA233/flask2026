@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в систему</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <h1>Авторизация</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash {{ category }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            {{ form.hidden_tag() }}
+            
+            <label>{{ form.username.label }}</label>
+            {{ form.username() }}
+            {% if form.username.errors %}
+                <div class="validation-error">
+                    <ul>
+                        {% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <label>{{ form.password.label }}</label>
+            {{ form.password() }}
+            {% if form.password.errors %}
+                <div class="validation-error">
+                    <ul>
+                        {% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {{ form.submit(class_="btn") }}
+        </form>
+
+        <div class="info">
+            При первом запуске данные администратора отображаются в консоли.
+        </div>
+    </div>
+</body>
+</html>
