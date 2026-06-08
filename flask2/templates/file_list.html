@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Файловый менеджер</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>📁 Загрузка и управление файлами</h1>
+
+    <div class="upload-section">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="file-input-group">
+                <input type="file" name="file" id="fileInput" required>
+                <button type="submit">⬆ Загрузить</button>
+            </div>
+            <small class="upload-hint">
+                Разрешены любые файлы, кроме .exe, .sh, .php, .js, .bat, .cmd, .vbs
+            </small>
+        </form>
+    </div>
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>📄 Оригинальное имя</th>
+                <th>🆔 UUID-имя файла</th>
+                <th>🔧 Расширение</th>
+                <th>📂 Путь на сервере</th>
+                <th>📅 Дата загрузки</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in files %}
+            <tr>
+                <td>{{ item.original_name }}</td>
+                <td><span class="badge">{{ item.stored_name }}</span></td>
+                <td>{{ item.file_extension if item.file_extension else '—' }}</td>
+                <td>
+                    <a href="{{ url_for('download_file', filepath=item.server_path) }}" target="_blank" class="file-link">
+                        {{ item.server_path }}
+                    </a>
+                </td>
+                <td>{{ item.upload_timestamp }}</td>
+            </tr>
+            {% else %}
+            <tr class="empty-row">
+                <td colspan="5">📭 Пока нет загруженных файлов. Выберите файл и нажмите «Загрузить».</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
