@@ -130,7 +130,6 @@ class NewAccountForm(FlaskForm):
 
 
 def active_user():
-    """Возвращает текущего авторизованного пользователя или None."""
     user_id = session.get("user_id")
     if not user_id:
         return None
@@ -138,7 +137,6 @@ def active_user():
 
 
 def require_login(fn):
-    """Декоратор для маршрутов, требующих авторизации."""
     @wraps(fn)
     def wrapper(*args, **kwargs):
         user = active_user()
@@ -150,7 +148,6 @@ def require_login(fn):
 
 
 def require_admin(fn):
-    """Декоратор для маршрутов, доступных только администраторам."""
     @wraps(fn)
     def wrapper(*args, **kwargs):
         user = active_user()
@@ -165,14 +162,12 @@ def require_admin(fn):
 
 
 def make_default_password() -> str:
-    """Генерирует случайный пароль для администратора."""
     alphabet = string.ascii_letters + string.digits
     suffix = "".join(secrets.choice(alphabet) for _ in range(8))
     return f"Aa1!{suffix}"
 
 
 def bootstrap_admin():
-    """Создаёт учётную запись администратора при первом запуске."""
     admin = Account.query.filter_by(username="admin").first()
     if admin:
         return
