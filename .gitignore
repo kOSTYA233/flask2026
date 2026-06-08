@@ -1,3 +1,6 @@
+flask2\storage"
+flask2\user_files
+flask3\users.json
 flask4\instance
 # Byte-compiled / optimized / DLL files
 __pycache__/
