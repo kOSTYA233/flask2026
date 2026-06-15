@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Задачи — TaskFlow{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Все задачи</h1>
+  {% if current_user %}
+  <a href="{{ url_for('routes.create_task') }}" class="btn btn-primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    Создать задачу
+  </a>
+  {% endif %}
+</div>
+
+<!-- Filters -->
+<form method="GET" action="{{ url_for('routes.task_list') }}">
+  <div class="filters">
+    <div class="form-group">
+      <label class="form-label">Поиск</label>
+      <input type="text" name="search" value="{{ search }}" placeholder="Название или описание...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Статус</label>
+      <select name="status">
+        <option value="">Все статусы</option>
+        <option value="new" {{ 'selected' if status_filter=='new' }}>Новый</option>
+        <option value="in_progress" {{ 'selected' if status_filter=='in_progress' }}>В разработке</option>
+        <option value="done" {{ 'selected' if status_filter=='done' }}>Готово</option>
+        <option value="archived" {{ 'selected' if status_filter=='archived' }}>В архиве</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Приоритет</label>
+      <select name="priority">
+        <option value="">Все приоритеты</option>
+        <option value="high" {{ 'selected' if priority_filter=='high' }}>Высокий</option>
+        <option value="medium" {{ 'selected' if priority_filter=='medium' }}>Средний</option>
+        <option value="low" {{ 'selected' if priority_filter=='low' }}>Низкий</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Дедлайн от</label>
+      <input type="date" name="date_from" value="{{ date_from }}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Дедлайн до</label>
+      <input type="date" name="date_to" value="{{ date_to }}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Сортировка</label>
+      <select name="sort">
+        <option value="created_desc" {{ 'selected' if sort=='created_desc' }}>Новые сначала</option>
+        <option value="created_asc" {{ 'selected' if sort=='created_asc' }}>Старые сначала</option>
+        <option value="deadline_asc" {{ 'selected' if sort=='deadline_asc' }}>Дедлайн ↑</option>
+        <option value="deadline_desc" {{ 'selected' if sort=='deadline_desc' }}>Дедлайн ↓</option>
+        <option value="priority" {{ 'selected' if sort=='priority' }}>По приоритету</option>
+        <option value="status" {{ 'selected' if sort=='status' }}>По жизненному циклу</option>
+      </select>
+    </div>
+    <div class="form-group" style="flex:0;">
+      <label class="form-label">&nbsp;</label>
+      <button type="submit" class="btn btn-primary">Применить</button>
+    </div>
+    <div class="form-group" style="flex:0;">
+      <label class="form-label">&nbsp;</label>
+      <a href="{{ url_for('routes.task_list') }}" class="btn btn-ghost">Сбросить</a>
+    </div>
+  </div>
+</form>
+
+{% if tasks %}
+  {% for task in tasks %}
+  <div class="task-card">
+    <div class="task-card-header">
+      <div class="task-card-title">
+        <a href="{{ url_for('routes.task_detail', task_id=task.id) }}">{{ task.title }}</a>
+      </div>
+      <div class="task-badges">
+        <span class="badge badge-{{ task.status }}">{{ task.status_label }}</span>
+        <span class="badge badge-{{ task.priority }}">{{ task.priority_label }}</span>
+        {% if task.is_private %}<span class="badge badge-private">Приватная</span>{% endif %}
+      </div>
+    </div>
+    <div style="font-size:14px; color:var(--text-muted); margin-bottom:8px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+      {{ task.description[:180] }}{% if task.description|length > 180 %}…{% endif %}
+    </div>
+    <div class="task-meta">
+      <span>Автор: <strong>{{ task.author.username }}</strong></span>
+      <span>Создана: {{ task.created_at.strftime("%d.%m.%Y") }}</span>
+      {% if task.deadline %}<span>Дедлайн: <strong>{{ task.deadline.strftime("%d.%m.%Y") }}</strong></span>{% endif %}
+      <span>💬 {{ task.comments|length }}</span>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+    <p>Задачи не найдены. {% if current_user %}<a href="{{ url_for('routes.create_task') }}">Создайте первую!</a>{% endif %}</p>
+  </div>
+{% endif %}
+
+{% endblock %}
