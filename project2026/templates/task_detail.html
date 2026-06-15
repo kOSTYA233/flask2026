@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}{{ task.title }} — TaskFlow{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <a href="{{ url_for('routes.task_list') }}" style="font-size:13px; color:var(--text-muted);">← Все задачи</a>
+    <h1 class="page-title" style="margin-top:4px;">{{ task.title }}</h1>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    {% if current_user and current_user.id == task.author_id %}
+    <a href="{{ url_for('routes.edit_task', task_id=task.id) }}" class="btn btn-ghost">Редактировать</a>
+    {% endif %}
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 280px; gap:24px; align-items:start;">
+
+  <!-- Left: description + comments -->
+  <div>
+
+    <!-- Description -->
+    <div class="card">
+      <div class="task-badges" style="margin-bottom:14px;">
+        <span class="badge badge-{{ task.status }}">{{ task.status_label }}</span>
+        <span class="badge badge-{{ task.priority }}">{{ task.priority_label }}</span>
+        {% if task.is_private %}<span class="badge badge-private">Приватная</span>
+        {% else %}<span class="badge badge-public">Публичная</span>{% endif %}
+      </div>
+      <div class="detail-section">
+        <h3>Описание</h3>
+        <div class="description-body">{{ task.description }}</div>
+      </div>
+      {% if task.filename %}
+      <div class="detail-section">
+        <h3>Вложение</h3>
+        <a href="{{ url_for('routes.download_file', filename=task.filename) }}" class="file-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          {{ task.original_filename }}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Comments -->
+    <div class="detail-section" style="margin-top:24px;">
+      <h3 style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:16px;">Комментарии ({{ task.comments|length }})</h3>
+
+      {% for comment in task.comments %}
+      <div class="comment">
+        <div class="comment-header">
+          <div class="avatar" style="width:26px; height:26px; font-size:11px;">{{ comment.author.username[0]|upper }}</div>
+          <span class="comment-author">{{ comment.author.username }}</span>
+          <span>{{ comment.created_at.strftime("%d.%m.%Y %H:%M") }}</span>
+        </div>
+        <div style="font-size:14px; white-space:pre-wrap; margin-bottom:{% if comment.filename %}10px{% else %}0{% endif %};">{{ comment.text }}</div>
+        {% if comment.filename %}
+        <a href="{{ url_for('routes.download_file', filename=comment.filename) }}" class="file-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          {{ comment.original_filename }}
+        </a>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      {% if not task.comments %}
+      <p style="color:var(--text-muted); font-size:14px;">Комментариев пока нет.</p>
+      {% endif %}
+
+      <!-- Add comment -->
+      {% if current_user %}
+      <div class="card" style="margin-top:20px;">
+        <h3 style="font-size:14px; font-weight:700; margin-bottom:14px;">Добавить комментарий</h3>
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('routes.task_detail', task_id=task.id) }}">
+          {{ comment_form.hidden_tag() }}
+          <div class="form-group">
+            {{ comment_form.text(placeholder="Напишите комментарий...") }}
+            {% for e in comment_form.text.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Прикрепить файл (необязательно)</label>
+            {{ comment_form.attachment() }}
+          </div>
+          <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+      </div>
+      {% else %}
+      <p style="margin-top:16px; font-size:14px;"><a href="{{ url_for('routes.sign_in') }}">Войдите</a>, чтобы оставить комментарий.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Right: meta sidebar -->
+  <div>
+    <div class="card card-sm">
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-bottom:12px;">Информация</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
+        <div><span style="color:var(--text-muted);">Автор:</span><br><strong>{{ task.author.username }}</strong></div>
+        <div><span style="color:var(--text-muted);">Создана:</span><br>{{ task.created_at.strftime("%d.%m.%Y %H:%M") }}</div>
+        <div><span style="color:var(--text-muted);">Обновлена:</span><br>{{ task.updated_at.strftime("%d.%m.%Y %H:%M") }}</div>
+        {% if task.deadline %}
+        <div><span style="color:var(--text-muted);">Дедлайн:</span><br><strong style="color:var(--danger);">{{ task.deadline.strftime("%d.%m.%Y") }}</strong></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Change status -->
+    {% if current_user %}
+    <div class="card card-sm" style="margin-top:12px;">
+      <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); margin-bottom:12px;">Изменить статус</div>
+      <form method="POST" action="{{ url_for('routes.change_status', task_id=task.id) }}" class="status-form" style="flex-direction:column; gap:8px;">
+        {{ status_form.hidden_tag() }}
+        <select name="status">
+          <option value="new" {{ 'selected' if task.status=='new' }}>Новый</option>
+          <option value="in_progress" {{ 'selected' if task.status=='in_progress' }}>В разработке</option>
+          <option value="done" {{ 'selected' if task.status=='done' }}>Готово</option>
+          {% if current_user.id == task.author_id %}
+          <option value="archived" {{ 'selected' if task.status=='archived' }}>В архиве</option>
+          {% endif %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Обновить</button>
+      </form>
+      {% if current_user.id != task.author_id %}
+      <p style="font-size:11px; color:var(--text-muted); margin-top:6px;">В архив может отправить только автор.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}
