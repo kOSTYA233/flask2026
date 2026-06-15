@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Статистика — TaskFlow{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Статистика{% if not current_user.is_admin %} (мои задачи){% endif %}</h1>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">{{ total }}</div>
+    <div class="stat-label">Всего задач</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--success);">{{ done_week }}</div>
+    <div class="stat-label">Выполнено за неделю</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--primary);">{{ done_month }}</div>
+    <div class="stat-label">Выполнено за месяц</div>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+  <div class="card">
+    <h2 style="font-size:16px; font-weight:700; margin-bottom:16px;">По статусу</h2>
+    {% set status_labels = {'new':'Новый','in_progress':'В разработке','done':'Готово','archived':'В архиве'} %}
+    {% for s, cnt in by_status.items() %}
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+      <span class="badge badge-{{ s }}">{{ status_labels[s] }}</span>
+      <strong>{{ cnt }}</strong>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px; font-weight:700; margin-bottom:16px;">По приоритету</h2>
+    {% set priority_labels = {'high':'Высокий','medium':'Средний','low':'Низкий'} %}
+    {% for p, cnt in by_priority.items() %}
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border);">
+      <span class="badge badge-{{ p }}">{{ priority_labels[p] }}</span>
+      <strong>{{ cnt }}</strong>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+{% endblock %}
