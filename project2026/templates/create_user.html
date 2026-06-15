@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Пользователи — TaskFlow{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Управление пользователями</h1>
+</div>
+
+<div style="display:grid; grid-template-columns:380px 1fr; gap:24px; align-items:start;">
+
+  <div class="card">
+    <h2 style="font-size:16px; font-weight:700; margin-bottom:16px;">Создать пользователя</h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        <label class="form-label">Логин</label>
+        {{ form.username() }}
+        {% for e in form.username.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Пароль</label>
+        {{ form.password() }}
+        {% for e in form.password.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Подтверждение пароля</label>
+        {{ form.confirm_password() }}
+        {% for e in form.confirm_password.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="form-group">
+        <label class="checkbox-row">{{ form.is_admin() }} Права администратора</label>
+      </div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px; font-weight:700; margin-bottom:16px;">Список пользователей</h2>
+    {% if users %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Логин</th>
+          <th>Роль</th>
+          <th>Дата регистрации</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td><strong>{{ user.username }}</strong></td>
+          <td>
+            {% if user.is_admin %}<span class="badge badge-admin">Admin</span>
+            {% else %}<span class="badge" style="background:#f1f5f9;color:#475569;">User</span>{% endif %}
+          </td>
+          <td>{{ user.created_at.strftime("%d.%m.%Y") }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-muted);">Пользователей пока нет.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}
