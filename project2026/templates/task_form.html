@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ form_title }} — TaskFlow{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">{{ form_title }}</h1>
+  <a href="{{ url_for('routes.task_list') }}" class="btn btn-ghost">Отмена</a>
+</div>
+
+<div class="card" style="max-width:680px;">
+  <form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <div class="form-group">
+      <label class="form-label">Название *</label>
+      {{ form.title(placeholder="Краткое название задачи") }}
+      {% for e in form.title.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Описание *</label>
+      {{ form.description(placeholder="Подробное описание задачи...") }}
+      {% for e in form.description.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <div class="form-group">
+        <label class="form-label">Приоритет</label>
+        {{ form.priority() }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Дедлайн</label>
+        {{ form.deadline() }}
+        {% for e in form.deadline.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Прикрепить файл</label>
+      {{ form.attachment() }}
+      {% if task and task.filename %}
+      <div style="margin-top:8px; font-size:13px; color:var(--text-muted);">
+        Текущий файл:
+        <a href="{{ url_for('routes.download_file', filename=task.filename) }}" class="file-link">{{ task.original_filename }}</a>
+        (загрузите новый, чтобы заменить)
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-row">
+        {{ form.is_private() }}
+        Приватная задача (видна только вам)
+      </label>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      {{ form.submit(class="btn btn-primary") }}
+      <a href="{{ url_for('routes.task_list') }}" class="btn btn-ghost">Отмена</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
