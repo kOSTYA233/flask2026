@@ -1,4 +1,7 @@
-flask2\storage"
+static/uploads/*
+!static/uploads/.gitkeep
+project2026\instance
+flask2\storage
 flask2\user_files
 flask3\users.json
 flask4\instance
